@@ -1,4 +1,4 @@
-import { Bell, Menu } from 'lucide-react';
+import { Bell, BookOpen, Menu } from 'lucide-react';
 
 const TITLES = {
   overview: 'Overview',
@@ -8,7 +8,7 @@ const TITLES = {
   policies: 'Policies',
 };
 
-export default function Header({ page, pendingCount, onOpenMobile, onGoApprovals }) {
+export default function Header({ page, pendingCount, onOpenMobile, onGoApprovals, onOpenConcept }) {
   return (
     <header className="sticky top-0 z-30 border-b border-[#232a45] bg-[#0a0d1a]/95 backdrop-blur">
       <div className="flex items-center gap-3 px-4 py-3 sm:px-6">
@@ -31,6 +31,16 @@ export default function Header({ page, pendingCount, onOpenMobile, onGoApprovals
           <span className="hidden rounded-full border border-indigo-500/30 bg-indigo-500/10 px-2.5 py-1 text-[11px] font-semibold text-indigo-300 md:inline-flex">
             SANDBOX MODE
           </span>
+          <button
+            type="button"
+            onClick={onOpenConcept}
+            aria-label="Open Core Concept overview"
+            title="Core Concept — what SnapCage does and why"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-500 px-2.5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-indigo-400"
+          >
+            <BookOpen size={17} aria-hidden="true" />
+            <span className="hidden sm:inline">Core Concept</span>
+          </button>
           <button
             type="button"
             onClick={onGoApprovals}

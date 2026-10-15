@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Sidebar from './components/Sidebar.jsx';
 import Header from './components/Header.jsx';
+import CoreConceptModal from './components/CoreConceptModal.jsx';
 import DecisionInspector from './components/DecisionInspector.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Simulator, { STEP_DELAY_MS } from './pages/Simulator.jsx';
@@ -28,6 +29,7 @@ export default function App() {
   const [selectedTraceId, setSelectedTraceId] = useState(null);
   const [toasts, setToasts] = useState([]);
   const [selectedScenarioId, setSelectedScenarioId] = useState('A');
+  const [conceptOpen, setConceptOpen] = useState(false);
   const [sim, setSim] = useState({ isRunning: false, visibleSteps: 0, traceId: null, done: false, decision: null });
   const [runToken, setRunToken] = useState(0);
   const timersRef = useRef([]);
@@ -104,6 +106,9 @@ export default function App() {
   const handleInspect = useCallback((traceId) => {
     if (traceId) setSelectedTraceId(traceId);
   }, []);
+
+  const handleOpenConcept = useCallback(() => setConceptOpen(true), []);
+  const handleCloseConcept = useCallback(() => setConceptOpen(false), []);
 
   const handleOpenScenario = useCallback((scenarioId) => {
     handleSelectScenario(scenarioId);
@@ -245,9 +250,9 @@ export default function App() {
 
   return (
     <div className="flex min-h-screen bg-[#0a0d1a] text-slate-200">
-      <Sidebar page={page} onNavigate={navigate} pendingCount={pendingDecisions.length} mobileOpen={mobileOpen} onCloseMobile={() => setMobileOpen(false)} />
+      <Sidebar page={page} onNavigate={navigate} pendingCount={pendingDecisions.length} mobileOpen={mobileOpen} onCloseMobile={() => setMobileOpen(false)} onOpenConcept={handleOpenConcept} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <Header page={page} pendingCount={pendingDecisions.length} onOpenMobile={() => setMobileOpen(true)} onGoApprovals={() => navigate('approvals')} />
+        <Header page={page} pendingCount={pendingDecisions.length} onOpenMobile={() => setMobileOpen(true)} onGoApprovals={() => navigate('approvals')} onOpenConcept={handleOpenConcept} />
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-5 sm:px-6">
           {page === 'overview' ? (
             <Dashboard
@@ -295,6 +300,8 @@ export default function App() {
       {selectedDecision ? (
         <DecisionInspector decision={selectedDecision} onClose={() => setSelectedTraceId(null)} />
       ) : null}
+
+      {conceptOpen ? <CoreConceptModal onClose={handleCloseConcept} /> : null}
 
       {/* Toasts */}
       <div className="pointer-events-none fixed bottom-4 right-4 z-[60] flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-2" aria-live="polite" aria-label="Notifications">

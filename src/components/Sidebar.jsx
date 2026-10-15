@@ -1,9 +1,9 @@
 import {
+  BookOpen,
   FlaskConical,
   Inbox,
   LayoutDashboard,
   ScrollText,
-  Shield,
   ShieldCheck,
 } from 'lucide-react';
 
@@ -15,12 +15,12 @@ const NAV = [
   { id: 'policies', label: 'Policies', icon: ShieldCheck },
 ];
 
-export default function Sidebar({ page, onNavigate, pendingCount, mobileOpen, onCloseMobile }) {
+export default function Sidebar({ page, onNavigate, pendingCount, mobileOpen, onCloseMobile, onOpenConcept }) {
   return (
     <>
       {/* Desktop sidebar */}
       <aside className="hidden w-64 shrink-0 flex-col border-r border-[#232a45] bg-[#0e1226] lg:flex" aria-label="Primary">
-        <SidebarBody page={page} onNavigate={onNavigate} pendingCount={pendingCount} />
+        <SidebarBody page={page} onNavigate={onNavigate} pendingCount={pendingCount} onOpenConcept={onOpenConcept} />
       </aside>
       {/* Mobile drawer */}
       {mobileOpen ? (
@@ -32,7 +32,7 @@ export default function Sidebar({ page, onNavigate, pendingCount, mobileOpen, on
             onClick={onCloseMobile}
           />
           <aside className="absolute left-0 top-0 flex h-full w-72 flex-col border-r border-[#232a45] bg-[#0e1226]">
-            <SidebarBody page={page} onNavigate={(p) => { onNavigate(p); onCloseMobile(); }} pendingCount={pendingCount} showClose onCloseMobile={onCloseMobile} />
+            <SidebarBody page={page} onNavigate={(p) => { onNavigate(p); onCloseMobile(); }} pendingCount={pendingCount} showClose onCloseMobile={onCloseMobile} onOpenConcept={() => { onOpenConcept(); onCloseMobile(); }} />
           </aside>
         </div>
       ) : null}
@@ -40,13 +40,17 @@ export default function Sidebar({ page, onNavigate, pendingCount, mobileOpen, on
   );
 }
 
-function SidebarBody({ page, onNavigate, pendingCount, showClose = false, onCloseMobile }) {
+function SidebarBody({ page, onNavigate, pendingCount, showClose = false, onCloseMobile, onOpenConcept }) {
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-3 border-b border-[#232a45] px-4 py-4">
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-500/20 text-indigo-300" aria-hidden="true">
-          <Shield size={20} />
-        </span>
+        <img
+          src="/logo.png"
+          alt="SnapCage logo"
+          width={40}
+          height={40}
+          className="h-10 w-10 shrink-0 rounded-xl bg-black object-cover ring-1 ring-indigo-500/30"
+        />
         <div className="min-w-0">
           <p className="truncate text-sm font-bold text-slate-100">SnapCage</p>
           <p className="truncate text-[11px] text-slate-400">Security Gateway</p>
@@ -64,6 +68,20 @@ function SidebarBody({ page, onNavigate, pendingCount, showClose = false, onClos
           <span className="rounded border border-amber-400/40 bg-amber-400/10 px-1.5 py-0.5 text-[10px] font-bold text-amber-300">DEMO</span>
         </div>
         <p className="mt-1.5 text-[10px] leading-relaxed text-slate-500">SIMULATED INTEGRATION · SANDBOX MODE</p>
+      </div>
+
+      <div className="border-b border-[#232a45] p-3">
+        <button
+          type="button"
+          onClick={onOpenConcept}
+          className="flex w-full items-center gap-3 rounded-xl bg-indigo-500 px-3 py-2.5 text-left shadow-lg shadow-indigo-950/50 transition-colors hover:bg-indigo-400"
+        >
+          <BookOpen size={19} className="shrink-0 text-white" aria-hidden="true" />
+          <span>
+            <span className="block text-sm font-bold text-white">Core Concept</span>
+            <span className="block text-[11px] text-indigo-100">What SnapCage does & why</span>
+          </span>
+        </button>
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto p-3" aria-label="Pages">
