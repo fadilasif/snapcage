@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Sidebar from './components/Sidebar.jsx';
 import Header from './components/Header.jsx';
 import CoreConceptModal from './components/CoreConceptModal.jsx';
+import N8nAlerts from './components/N8nAlerts.jsx';
 import DecisionInspector from './components/DecisionInspector.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Simulator, { STEP_DELAY_MS } from './pages/Simulator.jsx';
@@ -29,6 +30,7 @@ export default function App() {
   const [selectedTraceId, setSelectedTraceId] = useState(null);
   const [toasts, setToasts] = useState([]);
   const [selectedScenarioId, setSelectedScenarioId] = useState('A');
+  const [alerts, setAlerts] = useState([]);
   const [conceptOpen, setConceptOpen] = useState(false);
   const [sim, setSim] = useState({ isRunning: false, visibleSteps: 0, traceId: null, done: false, decision: null });
   const [runToken, setRunToken] = useState(0);
@@ -110,6 +112,10 @@ export default function App() {
   const handleOpenConcept = useCallback(() => setConceptOpen(true), []);
   const handleCloseConcept = useCallback(() => setConceptOpen(false), []);
 
+  const dismissAlert = useCallback((id) => {
+    setAlerts((prev) => prev.filter((a) => a.id !== id));
+  }, []);
+
   const handleOpenScenario = useCallback((scenarioId) => {
     handleSelectScenario(scenarioId);
     navigate('simulator');
@@ -162,6 +168,33 @@ export default function App() {
         }`,
         decision.decision === 'ALLOW' ? 'allow' : decision.decision === 'BLOCK' ? 'block' : 'review',
       );
+      if (decision.decision === 'BLOCK') {
+        // Simulated n8n webhook fan-out: build the payload that WOULD be POSTed.
+        // No real network request is made in this frontend-only demo.
+        const failedChecks = decision.policyChecks.filter((c) => c.result === 'FAIL').map((c) => c.name);
+        const alert = {
+          id: `${traceId}-${Date.now()}`,
+          traceId,
+          tool: decision.tool,
+          timestamp: new Date(),
+          title: 'Suspicious tool call blocked',
+          message: `SnapCage blocked ${decision.tool} (${decision.action}). Risk ${decision.riskLevel} — ${failedChecks.join(' · ') || 'policy violation'}.`,
+          payload: {
+            event: 'snapcage.decision.blocked',
+            traceId,
+            scenario: decision.scenarioName,
+            agent: decision.agent,
+            tool: decision.tool,
+            arguments: decision.args,
+            riskLevel: decision.riskLevel,
+            failedPolicies: failedChecks,
+            snapRecommendation: decision.snapAssessment.recommendation,
+            enforcement: decision.enforcementShort,
+            simulated: true,
+          },
+        };
+        setAlerts((prev) => [...prev.slice(-2), alert]);
+      }
     }, delay * (scenario.pipeline.length + 1));
     timersRef.current.push(finishId);
   }, [sim.isRunning, selectedScenarioId, traceCounter, pushToast]);
@@ -172,6 +205,7 @@ export default function App() {
     setEvents([]);
     setDecisions([]);
     setAudits([]);
+    setAlerts([]);
     setTraceCounter(1);
     setSelectedTraceId(null);
     setSim({ isRunning: false, visibleSteps: 0, traceId: null, done: false, decision: null });
@@ -302,6 +336,8 @@ export default function App() {
       ) : null}
 
       {conceptOpen ? <CoreConceptModal onClose={handleCloseConcept} /> : null}
+
+      <N8nAlerts alerts={alerts} onDismiss={dismissAlert} onInspect={handleInspect} />
 
       {/* Toasts */}
       <div className="pointer-events-none fixed bottom-4 right-4 z-[60] flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-2" aria-live="polite" aria-label="Notifications">
