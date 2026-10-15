@@ -107,27 +107,27 @@ export default function CoreConceptModal({ onClose }) {
           {/* Section 2 */}
           <section aria-label="How does it work?">
             <h3 className="text-sm font-bold text-slate-100">How does it work?</h3>
-            <ol className="mt-2.5 flex flex-col items-stretch gap-2 md:flex-row md:items-center">
-              {STAGES.map((s, i) => {
+            <ol className="mt-2.5 grid grid-cols-1 gap-2 md:grid-cols-[1fr_auto_1fr_auto_1fr]">
+              {STAGES.flatMap((s, i) => {
                 const Icon = s.icon;
-                return (
-                  <li key={s.title} className="flex flex-1 flex-col gap-2">
-                    <div className="flex flex-1 flex-col items-center rounded-xl border border-[#232a45] bg-[#10152c] px-3 py-4 text-center">
-                      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-500/20 text-indigo-300" aria-hidden="true">
-                        <Icon size={19} />
-                      </span>
-                      <p className="mt-2 text-[11px] font-bold uppercase tracking-wider text-slate-500">Stage {i + 1}</p>
-                      <p className="text-sm font-bold text-slate-100">{s.title}</p>
-                      <p className="text-xs text-slate-400">{s.description}</p>
-                    </div>
-                    {i < STAGES.length - 1 ? (
-                      <span className="flex justify-center text-slate-500" aria-hidden="true">
-                        <ArrowDown size={17} className="md:hidden" />
-                        <ArrowRight size={17} className="hidden md:block" />
-                      </span>
-                    ) : null}
+                const card = (
+                  <li key={s.title} className="flex flex-col items-center rounded-xl border border-[#232a45] bg-[#10152c] px-3 py-4 text-center">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-500/20 text-indigo-300" aria-hidden="true">
+                      <Icon size={19} />
+                    </span>
+                    <p className="mt-2 text-[11px] font-bold uppercase tracking-wider text-slate-500">Stage {i + 1}</p>
+                    <p className="text-sm font-bold text-slate-100">{s.title}</p>
+                    <p className="text-xs text-slate-400">{s.description}</p>
                   </li>
                 );
+                if (i === STAGES.length - 1) return [card];
+                return [
+                  card,
+                  <li key={`${s.title}-arrow`} aria-hidden="true" className="flex items-center justify-center text-slate-500">
+                    <ArrowDown size={17} className="md:hidden" />
+                    <ArrowRight size={17} className="hidden md:block" />
+                  </li>,
+                ];
               })}
             </ol>
             <div className="mt-3 flex flex-wrap justify-center gap-2">
