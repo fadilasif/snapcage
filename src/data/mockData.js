@@ -212,7 +212,7 @@ export const POLICIES = [
     id: 'POL-05',
     priority: 5,
     tier: 'FAIL-SAFE',
-    tierTone: 'pending',
+    tierTone: 'failsafe',
     tierNote: 'Applies only when Snap cannot answer. SnapCage — never Snap — enforces the fallback outcome.',
     title: 'If Snap cannot judge, SnapCage falls back to strict',
     description: 'Snap by SubQ AI provides contextual judgment only — it never authorizes actions. If its response is missing, malformed, or unavailable, SnapCage disregards it and enforces the strictest applicable policy outcome (deny, or require approval) instead.',
