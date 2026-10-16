@@ -46,6 +46,7 @@ flowchart TD
 2. **Evaluate** — Check explicit policies and assess relevant context.
 3. **Decide** — Allow, block, or request human approval.
 4. **Audit** — Record the decision and outcome.
+5. **Notify** — Send n8n notifications when critical security blocks occur, enabling timely human awareness and response.
 
 MCP provides the tool interface; SnapCage is responsible for security enforcement.
 
@@ -64,6 +65,7 @@ Its large context window could help evaluate actions against earlier instruction
 - **Policy enforcement** — Apply explicit security restrictions.
 - **Context-aware judgment** — Evaluate actions against relevant context.
 - **Prompt-injection defense** — Identify potentially malicious instructions.
+- **n8n notification** - Get notified on ur phone about critical blocks.
 - **Human approval** — Escalate risky operations for review.
 - **Decision traces** — Inspect decisions and their recorded reasoning.
 
