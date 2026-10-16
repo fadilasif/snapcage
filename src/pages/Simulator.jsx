@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { AlertTriangle, CheckCircle2, Gavel, Loader2, Play, RotateCcw } from 'lucide-react';
+import { AlertTriangle, Check, CheckCircle2, Gavel, Loader2, Play, RotateCcw } from 'lucide-react';
 import { getScenarioById, SCENARIOS } from '../data/mockData.js';
 import DecisionInspector from '../components/DecisionInspector.jsx';
 import StatusBadge, { riskTone, decisionTone } from '../components/StatusBadge.jsx';
@@ -43,17 +43,37 @@ export default function Simulator({
         onClick={() => !isRunning && onSelectScenario(s.id)}
         disabled={isRunning}
         aria-pressed={active}
-        className={`rounded-xl border p-3.5 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
-          active ? 'border-indigo-500/50 bg-indigo-500/[0.08]' : 'border-[#232a45] bg-[#10152c] hover:border-[#314062]'
+        className={`group relative w-full cursor-pointer rounded-xl border p-3.5 text-left transition-all disabled:cursor-not-allowed disabled:opacity-60 ${
+          active
+            ? 'border-indigo-500 bg-indigo-500/[0.12] shadow-lg shadow-indigo-950/50 ring-2 ring-indigo-500/40'
+            : 'border-[#314062] bg-[#10152c] hover:border-indigo-500/60 hover:bg-[#161d3e] hover:shadow-md hover:shadow-black/40 active:scale-[0.98]'
         }`}
       >
-        <span className="flex items-center gap-2">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{s.shortLabel}</span>
-          <StatusBadge tone={riskTone(s.riskLevel)}>{s.riskLevel}</StatusBadge>
+        <span className="flex items-center justify-between gap-2">
+          <span className="flex items-center gap-2">
+            <span className={`text-[11px] font-bold uppercase tracking-wider ${active ? 'text-indigo-300' : 'text-slate-400'}`}>{s.shortLabel}</span>
+            <StatusBadge tone={riskTone(s.riskLevel)}>{s.riskLevel}</StatusBadge>
+          </span>
+          {/* Radio-style selection indicator */}
+          <span
+            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
+              active ? 'border-indigo-400 bg-indigo-500' : 'border-slate-600 bg-transparent group-hover:border-indigo-500/70'
+            }`}
+            aria-hidden="true"
+          >
+            {active ? <Check size={13} className="text-white" strokeWidth={3} /> : null}
+          </span>
         </span>
         <span className="mt-1 block text-sm font-semibold text-slate-100">{s.title}</span>
         <span className="mt-0.5 block text-xs text-slate-400">
           <code className="text-indigo-200">{s.tool}</code> → <StatusBadge tone={decisionTone(s.decision)}>{s.decision}</StatusBadge>
+        </span>
+        <span
+          className={`mt-2.5 block text-center text-xs font-semibold transition-opacity ${
+            active ? 'text-indigo-300' : 'text-slate-500 opacity-0 group-hover:opacity-100'
+          }`}
+        >
+          {active ? '✓ Selected — press Run Simulation' : 'Click to select'}
         </span>
       </button>
     );
@@ -62,8 +82,14 @@ export default function Simulator({
   return (
     <div className="space-y-5">
       {/* Scenario picker */}
-      <section aria-label="Scenario presets" className="grid gap-3 md:grid-cols-3">
-        {SCENARIOS.map(scenarioCard)}
+      <section aria-label="Scenario presets" className="rounded-xl border border-[#232a45] bg-[#0e1226] p-4">
+        <div className="mb-3 flex items-center gap-2">
+          <p className="text-sm font-bold text-slate-100">Choose a scenario</p>
+          <span className="text-xs text-slate-500">— click a card, then press Run Simulation</span>
+        </div>
+        <div className="grid gap-3 md:grid-cols-3">
+          {SCENARIOS.map(scenarioCard)}
+        </div>
       </section>
 
       <div className="grid gap-5 xl:grid-cols-5">
