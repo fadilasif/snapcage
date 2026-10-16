@@ -1,117 +1,122 @@
 # 🛡️ SnapCage
 
-### Context-aware security for AI agents.
+### 🔗 [**▶ Try the Live Demo**](https://snapcage.vercel.app/)
 
-**Every action checked. Every decision explained.**
+**Context-aware security for AI agents.**
 
-AI agents can read files, call APIs, and execute tools. But malicious instructions hidden in documents or tool outputs can manipulate agents into performing actions their users never authorized.
+*Every action checked. Every decision explained.*
 
-**SnapCage is an AI-agent security gateway that evaluates proposed tool calls before execution.** It combines deterministic security policies with contextual judgment powered by Snap by SubQ AI to help identify unsafe and unauthorized actions.
+**SnapCage** is an AI-agent security gateway that evaluates proposed tool calls before execution. It combines deterministic security policies with contextual judgment powered by Snap by SubQ AI to help identify unsafe and unauthorized actions.
 
 > The agent proposes. Snap judges the context. SnapCage enforces the decision.
 
 ## ⚙️ How It Works
 
-SnapCage is designed to use the **Model Context Protocol (MCP)** to expose guarded tools to AI agents. Each request passes through the security layer before reaching a protected tool.
+SnapCage is designed to use the **Model Context Protocol (MCP)** to expose guarded tools to AI agents. Requests pass through the security layer before reaching protected tools.
 
 ```mermaid
 flowchart TD
-    A["AI Agent<br/>Proposes a tool call"]
-    B["SnapCage MCP Server<br/>Intercepts the request"]
-    C["Security Policy Engine<br/>Checks permissions and restrictions"]
-    D["Snap by SubQ AI<br/>Evaluates relevant context"]
-    E{"SnapCage Decision"}
-    F["ALLOW"]
-    G["BLOCK"]
-    H["REQUIRE APPROVAL"]
-    I["Protected Tools"]
-    J["Audit Log"]
+    Agent["AI Agent<br/>Proposes a tool call"]
+    Gateway["SnapCage Security Gateway<br/>Intercepts the request"]
+    Policy["Security Policies<br/>Check permissions and restrictions"]
+    Snap["Snap by SubQ AI<br/>Assesses relevant context"]
+    Decision{"Final security decision"}
+    Allow["ALLOW"]
+    Block["BLOCK"]
+    Approval["REQUIRE APPROVAL"]
+    Tools["Protected Tools"]
+    Audit["Audit Log"]
 
-    A --> B
-    B --> C
-    B --> D
-    C --> E
-    D --> E
-    E --> F
-    E --> G
-    E --> H
-    F --> I
-    H -->|Approved| I
-    H -->|Rejected| G
-    I --> J
-    G --> J
+    Agent --> Gateway
+    Gateway --> Policy
+    Gateway --> Snap
+    Policy --> Decision
+    Snap --> Decision
+    Decision --> Allow
+    Decision --> Block
+    Decision --> Approval
+    Allow --> Tools
+    Approval -->|Approved| Tools
+    Approval -->|Rejected| Block
+    Tools --> Audit
+    Block --> Audit
 ```
 
 1. **Intercept** — Capture the proposed tool call.
 2. **Evaluate** — Check explicit policies and assess relevant context.
-3. **Decide** — Allow, block, or require human approval.
+3. **Decide** — Allow, block, or request human approval.
 4. **Audit** — Record the decision and outcome.
 
-MCP provides the tool interface; SnapCage is responsible for security enforcement. This diagram describes the intended architecture, not a live backend in the current demo.
+MCP provides the tool interface; SnapCage is responsible for security enforcement.
 
 ## 🧠 Why Snap by SubQ AI?
 
-Snap is a decision model designed to return structured judgments rather than unrestricted text. According to SubQ's published documentation, it supports a context window of up to **384K tokens**.
+Snap is a decision model designed to return structured judgments. According to SubQ's documentation, it supports a context window of up to **384K tokens**.
 
-General-purpose LLMs can make security decisions, but they're primarily designed for open-ended text generation. Snap's structured decision interface is suited to bounded questions where an application needs a machine-readable answer.
+General-purpose LLMs can make security decisions, but they're primarily designed for open-ended text generation. Snap's structured decision interface is suited to bounded questions that require machine-readable answers.
 
-Its large context window could also help evaluate an action against earlier instructions, conversation history, and untrusted content—not just the latest tool call.
+Its large context window could help evaluate actions against earlier instructions, conversation history, and untrusted content. However, neither structured outputs nor a larger context window guarantee correct security decisions.
 
-**Snap provides contextual judgment, not guaranteed security.** SnapCage remains responsible for enforcing mandatory policies and the final decision.
+**Snap provides contextual judgment; SnapCage enforces the final decision.**
 
 ## 🔐 Key Features
 
 - **Policy enforcement** — Apply explicit security restrictions.
-- **Context-aware judgment** — Assess proposed actions against relevant context.
-- **Prompt-injection defense** — Identify actions potentially influenced by malicious instructions.
-- **Human approval** — Escalate selected risky operations.
-- **Decision traces** — Inspect the reasoning and outcome of each simulated evaluation.
+- **Context-aware judgment** — Evaluate actions against relevant context.
+- **Prompt-injection defense** — Identify potentially malicious instructions.
+- **Human approval** — Escalate risky operations for review.
+- **Decision traces** — Inspect decisions and their recorded reasoning.
 
-## 🎯 Demo Scenarios
+## 🎯 What to Test in the Demo
 
-| Scenario | Proposed action | Expected decision |
-|---|---|---|
-| A — Normal operation | Read an authorized project file | 🟢 ALLOW |
-| B — Prompt injection | Email a confidential file due to malicious document instructions | 🔴 BLOCK |
-| C — Destructive action | Delete a protected directory | 🟡 APPROVAL REQUIRED |
+**Live demo:** https://snapcage.vercel.app/
 
-## 🖥️ Try the Demo
+Try these scenarios in order:
 
-The interactive frontend includes:
+1. **Overview:** Explore system status, metrics, recent decisions, and the event stream.
+2. **Scenario A — ALLOW:** Run `read_file` on an authorized project file. Observe the evaluation stages and final decision.
+3. **Scenario B — BLOCK:** Run `send_email` with confidential data prompted by malicious document instructions. Inspect why the action is blocked.
+4. **Scenario C — APPROVAL REQUIRED:** Run `delete_file` on a protected directory. Open the Approval Queue and approve or reject the request.
+5. **Decision Trace:** Click a simulator result, event, or audit record to inspect the request, policy checks, simulated Snap judgment, decision, and enforcement outcome.
+6. **Audit Logs:** Search and filter entries by tool, action, trace ID, decision, or risk level.
+7. **Policies:** Explore the rules and distinguish mandatory restrictions from contextual judgment.
+8. **Reset Demo:** Restore the initial state and repeat the scenarios.
 
-1. **Overview** — System status, decision metrics, event stream, and recent decisions.
-2. **Security Simulator** — Run scenarios A, B, and C and watch the simulated evaluation stages.
-3. **Decision Trace** — Inspect the request, policy checks, simulated Snap judgment, final decision, and enforcement outcome.
-4. **Approval Queue** — Approve or reject a simulated request and observe the updated interface.
-5. **Audit Logs** — Search and filter decisions by tool, action, trace ID, outcome, and risk level.
-6. **Policies** — Explore the illustrative security rules.
+## 🖥️ Demo Scope
+
+**Frontend-only hackathon prototype — Round 1.**
+
+All decisions, Snap responses, latency figures, telemetry, and approval effects are deterministic local simulations. There is no backend, database, live Snap API connection, or real tool execution.
+
+Approving an action records simulated authorization; it does not execute the action. The MCP architecture describes the intended implementation, not a live integration.
 
 ## 🚀 Run Locally
 
 ```bash
+git clone <your-repository-url>
+cd <your-repository-directory>
 npm install
 npm run dev
 ```
 
-To build and preview the production bundle:
+Build and preview:
 
 ```bash
 npm run build
 npm run preview
 ```
 
-## ⚠️ Demo Scope
+## 🛠️ Technology
 
-**This is a frontend-only hackathon prototype.**
-
-All decisions, Snap responses, latency figures, telemetry, and approval effects are deterministic local simulations. There is no backend, database, live Snap API connection, or real tool execution.
-
-Approving an action records simulated authorization; it does not execute the action. The interface demonstrates the proposed security workflow, not production-grade enforcement.
+- React · Vite · Tailwind CSS
+- Python — planned backend
+- MCP — planned tool integration
+- Snap by SubQ AI — planned live integration
 
 ---
 
 <p align="center">
   <strong>SnapCage</strong><br/>
   Every action checked. Every decision explained.<br/>
-  <sub>Powered by Snap by SubQ AI · AI-agent security gateway</sub>
+  <sub>Powered by Snap by SubQ AI</sub>
 </p>
